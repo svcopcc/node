@@ -64,7 +64,9 @@ node oauth-server.js
 - **PDF 生成：** Puppeteer
 
 
-## 限制只有指定域名的Gmail帳號才能登入使用系統。請將"/api/submit.js"中的 allowedDomains 陣列中的域名改為您的組織域名，例如：
+## 限制只有指定域名的Gmail帳號才能登入使用系統。
+
+請將"/api/submit.js"中的 allowedDomains 陣列中的域名改為您的組織域名，例如：
 
 ['@yourschool.edu.tw'] - 學校
 
@@ -79,6 +81,7 @@ submit.js 是全部簽收項目頁面通用的。
 停車證頁面 (index.tsx)：傳送 sign_item: '停車證'
 
 學生證頁面 (stc.tsx)：傳送 sign_item: '學生證'
+
 
 ## 重複驗證
 
