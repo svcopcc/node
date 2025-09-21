@@ -1,5 +1,7 @@
 const { google } = require('googleapis');
 const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = async function handler(req, res) {
     // 設定CORS
@@ -69,14 +71,21 @@ module.exports = async function handler(req, res) {
             });
         }
 
-        // 使用PDFKit生成PDF
+        // 使用PDFKit + 中文字體生成PDF
         const timestamp = new Date();
         const fileName = `${student_id}_${name}_${timestamp.getTime()}.pdf`;
+        
+        // 讀取中文字體
+        const fontPath = path.join(process.cwd(), 'Typeface', 'NotoSansTC-Regular.ttf');
         
         const doc = new PDFDocument();
         const chunks = [];
         
         doc.on('data', chunk => chunks.push(chunk));
+        
+        // 設定中文字體
+        doc.registerFont('NotoSans', fontPath);
+        doc.font('NotoSans');
         
         // 標題
         doc.fontSize(20)
