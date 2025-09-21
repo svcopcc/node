@@ -68,6 +68,8 @@ node oauth-server.js
 
 請將"/api/submit.js"中的 allowedDomains 陣列中的域名改為您的組織域名，例如：
 
+const allowedDomains = ['@nkust.edu.tw', '@school.edu.tw']; // 更改為您的組織域名
+
 ['@yourschool.edu.tw'] - 學校
 
 ['@yourcompany.com'] - 公司

@@ -160,7 +160,7 @@ const StudentCardApp = () => {
         const userObject = decodeJwt(response.credential);
         if (userObject) {
             // 限制特定組織email
-            const allowedDomains = ['@example.com', '@school.edu.tw']; // 更改為您的組織域名
+            const allowedDomains = ['@nkust.edu.tw']; // 更改為您的組織域名
             const isAllowedDomain = allowedDomains.some(domain => userObject.email.endsWith(domain));
             
             if (!isAllowedDomain) {

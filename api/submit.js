@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
         }
         
         // 限制特定組織email
-        const allowedDomains = ['@nkust.edu.tw', '@school.edu.tw']; // 更改為您的組織域名
+        const allowedDomains = ['@nkust.edu.tw']; // 更改為您的組織域名
         const isAllowedDomain = allowedDomains.some(domain => userEmail.endsWith(domain));
         if (!isAllowedDomain) {
             return res.json({ code: "AUTH_REQUIRED", message: "只允許特定組織的Gmail帳號使用" });
