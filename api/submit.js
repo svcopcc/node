@@ -95,7 +95,7 @@ module.exports = async function handler(req, res) {
         doc.fontSize(12);
         let yPos = 120;
         
-        doc.text(`日期時間: ${timestamp.toLocaleString('zh-TW')}`, 50, yPos);
+        doc.text(`日期時間: ${timestamp.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}`, 50, yPos);
         yPos += 30;
         
         doc.text(`姓名: ${name}`, 50, yPos);
@@ -113,14 +113,27 @@ module.exports = async function handler(req, res) {
         doc.text('簽名:', 50, yPos);
         yPos += 30;
         
+        // 簽名欄位外框
+        const signatureBoxX = 50;
+        const signatureBoxY = yPos;
+        const signatureBoxWidth = 250;
+        const signatureBoxHeight = 100;
+        
+        doc.rect(signatureBoxX, signatureBoxY, signatureBoxWidth, signatureBoxHeight)
+           .stroke();
+        
         // 加入簽名圖片
         if (signature_data_url) {
             try {
                 const base64Data = signature_data_url.replace(/^data:image\/\w+;base64,/, '');
                 const imgBuffer = Buffer.from(base64Data, 'base64');
-                doc.image(imgBuffer, 50, yPos, { width: 200 });
+                doc.image(imgBuffer, signatureBoxX + 10, signatureBoxY + 10, { 
+                    width: signatureBoxWidth - 20,
+                    height: signatureBoxHeight - 20,
+                    fit: [signatureBoxWidth - 20, signatureBoxHeight - 20]
+                });
             } catch (imgError) {
-                doc.text('簽名圖片無法加載', 50, yPos);
+                doc.text('簽名圖片無法加載', signatureBoxX + 10, signatureBoxY + 40);
             }
         }
         
@@ -154,8 +167,8 @@ module.exports = async function handler(req, res) {
         const fileUrl = `https://drive.google.com/file/d/${fileId}/view`;
 
         // 記錄到 Google Sheets
-        const dateStr = timestamp.toLocaleDateString('zh-TW');
-        const timeStr = timestamp.toLocaleTimeString('zh-TW');
+        const dateStr = timestamp.toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' });
+        const timeStr = timestamp.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei' });
         await sheets.spreadsheets.values.append({
             spreadsheetId: process.env.GOOGLE_SHEET_ID,
             range: 'A:H',

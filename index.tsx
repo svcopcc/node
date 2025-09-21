@@ -407,9 +407,21 @@ const App = () => {
                      <pre>{JSON.stringify(responseLog, null, 2)}</pre>
                  </div>
             )}
+            <div id="footer-container"></div>
         </main>
     );
 };
+
+// 加載footer
+fetch('/footer.html')
+    .then(response => response.text())
+    .then(html => {
+        const footerContainer = document.getElementById('footer-container');
+        if (footerContainer) {
+            footerContainer.innerHTML = html;
+        }
+    })
+    .catch(error => console.log('Footer加載失敗:', error));
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(<App />);
