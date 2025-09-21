@@ -115,48 +115,35 @@ module.exports = async function handler(req, res) {
         doc.text('簽名:', 50, yPos);
         yPos += 30;
         
-        // 加入簽名圖片並根據實際大小設定外框
+        // 加入簽名圖片
         if (signature_data_url) {
             try {
                 const base64Data = signature_data_url.replace(/^data:image\/\w+;base64,/, '');
                 const imgBuffer = Buffer.from(base64Data, 'base64');
                 
-                // 設定簽名區域最大尺寸
-                const maxWidth = 400;
-                const maxHeight = 150;
+                // 設定簽名區域更大尺寸
+                const maxWidth = 450;
+                const maxHeight = 200;
                 
                 // 放置簽名圖片
                 doc.image(imgBuffer, 50, yPos, { 
-                    fit: [maxWidth, maxHeight],
-                    align: 'left',
-                    valign: 'top'
+                    width: maxWidth,
+                    height: maxHeight,
+                    fit: [maxWidth, maxHeight]
                 });
                 
-                // 獲取實際圖片尺寸來設定外框
-                const imgInfo = doc._getImage(imgBuffer);
-                const aspectRatio = imgInfo.width / imgInfo.height;
-                let actualWidth, actualHeight;
-                
-                if (aspectRatio > maxWidth / maxHeight) {
-                    actualWidth = maxWidth;
-                    actualHeight = maxWidth / aspectRatio;
-                } else {
-                    actualHeight = maxHeight;
-                    actualWidth = maxHeight * aspectRatio;
-                }
-                
-                // 簽名欄位外框（根據實際尺寸）
-                doc.rect(50, yPos, actualWidth, actualHeight)
+                // 簽名欄位外框（固定尺寸）
+                doc.rect(50, yPos, maxWidth, maxHeight)
                    .stroke();
                    
             } catch (imgError) {
-                // 如果圖片加載失敗，顯示預設外框
-                doc.rect(50, yPos, 300, 80).stroke();
-                doc.text('簽名圖片無法加載', 60, yPos + 30);
+                console.error('簽名圖片加載錯誤:', imgError);
+                // 如果圖片加載失敗，只顯示外框
+                doc.rect(50, yPos, 450, 200).stroke();
             }
         } else {
             // 沒有簽名時的預設外框
-            doc.rect(50, yPos, 300, 80).stroke();
+            doc.rect(50, yPos, 450, 200).stroke();
         }
         
         doc.end();
