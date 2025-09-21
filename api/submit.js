@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const { jsPDF } = require('jspdf');
+const PDFDocument = require('pdfkit');
 
 module.exports = async function handler(req, res) {
     // 設定CORS
@@ -69,51 +69,59 @@ module.exports = async function handler(req, res) {
             });
         }
 
-        // 使用jsPDF生成PDF
+        // 使用PDFKit生成PDF
         const timestamp = new Date();
         const fileName = `${student_id}_${name}_${timestamp.getTime()}.pdf`;
         
-        const doc = new jsPDF();
+        const doc = new PDFDocument();
+        const chunks = [];
         
-        // 設定中文字體（使用預設字體）
-        doc.setFont('helvetica');
+        doc.on('data', chunk => chunks.push(chunk));
         
         // 標題
-        doc.setFontSize(20);
-        doc.text('線上簽收單', 105, 30, { align: 'center' });
+        doc.fontSize(20)
+           .text('線上簽收單', 50, 50, { align: 'center' });
         
         // 內容
-        doc.setFontSize(12);
-        let yPos = 60;
+        doc.fontSize(12);
+        let yPos = 120;
         
-        doc.text(`日期時間: ${timestamp.toLocaleString('zh-TW')}`, 20, yPos);
-        yPos += 15;
+        doc.text(`日期時間: ${timestamp.toLocaleString('zh-TW')}`, 50, yPos);
+        yPos += 30;
         
-        doc.text(`姓名: ${name}`, 20, yPos);
-        yPos += 15;
+        doc.text(`姓名: ${name}`, 50, yPos);
+        yPos += 30;
         
-        doc.text(`學號: ${student_id}`, 20, yPos);
-        yPos += 15;
+        doc.text(`學號: ${student_id}`, 50, yPos);
+        yPos += 30;
         
-        doc.text(`簽收項目: ${sign_item}`, 20, yPos);
-        yPos += 15;
+        doc.text(`簽收項目: ${sign_item}`, 50, yPos);
+        yPos += 30;
         
-        doc.text(`Email: ${userEmail}`, 20, yPos);
-        yPos += 25;
+        doc.text(`Email: ${userEmail}`, 50, yPos);
+        yPos += 50;
         
-        doc.text('簽名:', 20, yPos);
-        yPos += 10;
+        doc.text('簽名:', 50, yPos);
+        yPos += 30;
         
         // 加入簽名圖片
         if (signature_data_url) {
             try {
-                doc.addImage(signature_data_url, 'PNG', 20, yPos, 80, 30);
+                const base64Data = signature_data_url.replace(/^data:image\/\w+;base64,/, '');
+                const imgBuffer = Buffer.from(base64Data, 'base64');
+                doc.image(imgBuffer, 50, yPos, { width: 200 });
             } catch (imgError) {
-                doc.text('簽名圖片無法加載', 20, yPos + 15);
+                doc.text('簽名圖片無法加載', 50, yPos);
             }
         }
         
-        const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+        doc.end();
+        
+        const pdfBuffer = await new Promise(resolve => {
+            doc.on('end', () => {
+                resolve(Buffer.concat(chunks));
+            });
+        });
 
         // 上傳PDF到Google Drive
         const drive = google.drive({ version: 'v3', auth: oauth2Client });

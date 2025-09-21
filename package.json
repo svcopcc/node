@@ -16,7 +16,7 @@
     "googleapis": "^160.0.0",
     "puppeteer-core": "^22.0.0",
     "@sparticuz/chromium": "^123.0.0",
-    "jspdf": "^2.5.1",
+    "pdfkit": "^0.15.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
