@@ -1,6 +1,5 @@
 const { google } = require('googleapis');
-const puppeteer = require('puppeteer-core');
-const chromium = require('@sparticuz/chromium');
+const { jsPDF } = require('jspdf');
 
 module.exports = async function handler(req, res) {
     // 設定CORS
@@ -70,61 +69,51 @@ module.exports = async function handler(req, res) {
             });
         }
 
-        // 生成PDF
+        // 使用jsPDF生成PDF
         const timestamp = new Date();
         const fileName = `${student_id}_${name}_${timestamp.getTime()}.pdf`;
         
-        const browser = await puppeteer.launch({
-            args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: 'new',
-            ignoreHTTPSErrors: true,
-        });
-
-        const page = await browser.newPage();
+        const doc = new jsPDF();
         
-        const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>線上簽收單</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 40px; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .content { margin: 20px 0; }
-                .signature { margin: 20px 0; }
-                .signature img { max-width: 300px; border: 1px solid #ccc; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>線上簽收單</h1>
-            </div>
-            <div class="content">
-                <p><strong>日期時間：</strong> ${timestamp.toLocaleString('zh-TW')}</p>
-                <p><strong>姓名：</strong> ${name}</p>
-                <p><strong>學號：</strong> ${student_id}</p>
-                <p><strong>簽收項目：</strong> ${sign_item}</p>
-                <p><strong>Email：</strong> ${userEmail}</p>
-            </div>
-            <div class="signature">
-                <p><strong>簽名：</strong></p>
-                <img src="${signature_data_url}" alt="簽名" />
-            </div>
-        </body>
-        </html>
-        `;
+        // 設定中文字體（使用預設字體）
+        doc.setFont('helvetica');
         
-        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-        const pdfBuffer = await page.pdf({ 
-            format: 'A4',
-            margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' },
-            printBackground: true
-        });
+        // 標題
+        doc.setFontSize(20);
+        doc.text('線上簽收單', 105, 30, { align: 'center' });
         
-        await browser.close();
+        // 內容
+        doc.setFontSize(12);
+        let yPos = 60;
+        
+        doc.text(`日期時間: ${timestamp.toLocaleString('zh-TW')}`, 20, yPos);
+        yPos += 15;
+        
+        doc.text(`姓名: ${name}`, 20, yPos);
+        yPos += 15;
+        
+        doc.text(`學號: ${student_id}`, 20, yPos);
+        yPos += 15;
+        
+        doc.text(`簽收項目: ${sign_item}`, 20, yPos);
+        yPos += 15;
+        
+        doc.text(`Email: ${userEmail}`, 20, yPos);
+        yPos += 25;
+        
+        doc.text('簽名:', 20, yPos);
+        yPos += 10;
+        
+        // 加入簽名圖片
+        if (signature_data_url) {
+            try {
+                doc.addImage(signature_data_url, 'PNG', 20, yPos, 80, 30);
+            } catch (imgError) {
+                doc.text('簽名圖片無法加載', 20, yPos + 15);
+            }
+        }
+        
+        const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
 
         // 上傳PDF到Google Drive
         const drive = google.drive({ version: 'v3', auth: oauth2Client });
@@ -170,10 +159,15 @@ module.exports = async function handler(req, res) {
 
     } catch (error) {
         console.error('API Error:', error);
+        console.error('Error stack:', error.stack);
         res.json({
             code: "TOOL_ERROR",
-            message: `儲存檔案時發生錯誤: ${error.message}`,
-            data: { error_code: "DRIVE_UPLOAD_FAILED" }
+            message: `儲存檔案時發生錯誤: ${error.message || error.toString()}`,
+            data: { 
+                error_code: "DRIVE_UPLOAD_FAILED", 
+                details: error.message || error.toString(),
+                stack: error.stack
+            }
         });
     }
 }
