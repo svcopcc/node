@@ -26,6 +26,13 @@ module.exports = async function handler(req, res) {
         if (!userEmail) {
             return res.json({ code: "AUTH_REQUIRED", message: "請先以 Google 帳戶登入" });
         }
+        
+        // 限制特定組織email
+        const allowedDomains = ['@nkust.edu.tw', '@school.edu.tw']; // 更改為您的組織域名
+        const isAllowedDomain = allowedDomains.some(domain => userEmail.endsWith(domain));
+        if (!isAllowedDomain) {
+            return res.json({ code: "AUTH_REQUIRED", message: "只允許特定組織的Gmail帳號使用" });
+        }
         if (!name || !student_id || !signature_data_url || !consent) {
             return res.json({ code: "VALIDATION_ERROR", message: "所有欄位皆為必填" });
         }
