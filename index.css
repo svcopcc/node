@@ -1,0 +1,201 @@
+:root {
+  --primary-color: #4285F4;
+  --primary-hover-color: #357ae8;
+  --secondary-color: #f1f1f1;
+  --secondary-hover-color: #e0e0e0;
+  --text-color: #333;
+  --border-color: #ddd;
+  --border-radius: 12px;
+  --card-padding: 1.5rem;
+  --font-family: 'Noto Sans TC', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: #f9f9f9;
+  color: var(--text-color);
+  margin: 0;
+  padding: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  max-width: 500px;
+}
+
+main {
+  background: white;
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+h1 {
+  text-align: center;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  font-weight: 700;
+}
+
+.card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--card-padding);
+  margin-bottom: 1.5rem;
+  background-color: #fff;
+}
+
+.auth-card {
+  padding: 1rem 1.5rem;
+  background-color: #f5f8ff;
+}
+
+.auth-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.auth-info span {
+    font-size: 0.95rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+input[type="text"], input[type="email"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  font-family: var(--font-family);
+}
+
+input[type="text"]:focus, input[type="email"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+.consent-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+canvas#signature-pad {
+  width: 100%;
+  height: 200px;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+button {
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-family: var(--font-family);
+  white-space: nowrap;
+}
+
+button.primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+button.primary:hover {
+  background-color: var(--primary-hover-color);
+}
+
+button.primary:disabled {
+  background-color: #a0c3ff;
+  cursor: not-allowed;
+}
+
+
+button.secondary {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+}
+
+button.secondary:hover {
+  background-color: var(--secondary-hover-color);
+}
+
+#signature-preview {
+  display: none;
+  max-width: 100%;
+  margin-top: 1rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border-left-color: var(--primary-color);
+  animation: spin 1s ease infinite;
+  margin: 2rem auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.log {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+}
+
+.log.hidden {
+    display: none;
+}
+
+.log-title {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.error-message {
+    color: #d93025;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.hidden {
+    display: none;
+}

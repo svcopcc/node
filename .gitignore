@@ -1,0 +1,27 @@
+# 敏感檔案
+.env.server
+.env.local
+service-account-key.json
+tokens.json
+
+# 依賴套件
+node_modules/
+
+# 建置檔案
+dist/
+build/
+
+# 上傳檔案
+uploads/
+
+# 系統檔案
+.DS_Store
+Thumbs.db
+
+# IDE 檔案
+.vscode/
+.idea/
+
+# 日誌檔案
+*.log
+npm-debug.log*
