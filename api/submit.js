@@ -69,8 +69,8 @@ export default async function handler(req, res) {
             });
         }
 
-        // 生成PDF (使用chrome-aws-lambda for Vercel)
-        const chromium = require('chrome-aws-lambda');
+        // 生成PDF (使用@sparticuz/chromium for Vercel)
+        const chromium = require('@sparticuz/chromium');
         
         const browser = await puppeteer.launch({
             args: chromium.args,
