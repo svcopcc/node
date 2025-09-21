@@ -179,9 +179,10 @@ module.exports = async function handler(req, res) {
         try {
             const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
             
-            const emailSubject = `線上簽收單 - ${sign_item}`;
-            const emailBody = `
-您好 ${name}，
+            const boundary = '----boundary_' + Date.now();
+            const emailSubject = `=?UTF-8?B?${Buffer.from(`線上簽收單 - ${sign_item}`).toString('base64')}?=`;
+            
+            const emailBody = `您好 ${name}，
 
 您的線上簽收已完成，詳細資訊如下：
 
@@ -194,17 +195,29 @@ PDF簽收單已附加於本信件中。
 謝謝您的使用！
 
 ---
-線上簽收系統
-            `;
+線上簽收系統`;
             
             const emailMessage = [
-                'Content-Type: text/plain; charset="UTF-8"',
-                'MIME-Version: 1.0',
                 `To: ${userEmail}`,
                 `Subject: ${emailSubject}`,
+                'MIME-Version: 1.0',
+                `Content-Type: multipart/mixed; boundary="${boundary}"`,
                 '',
-                emailBody
-            ].join('\n');
+                `--${boundary}`,
+                'Content-Type: text/plain; charset=UTF-8',
+                'Content-Transfer-Encoding: base64',
+                '',
+                Buffer.from(emailBody).toString('base64'),
+                '',
+                `--${boundary}`,
+                'Content-Type: application/pdf',
+                `Content-Disposition: attachment; filename="${fileName}"`,
+                'Content-Transfer-Encoding: base64',
+                '',
+                pdfBuffer.toString('base64'),
+                '',
+                `--${boundary}--`
+            ].join('\r\n');
             
             const encodedMessage = Buffer.from(emailMessage)
                 .toString('base64')
@@ -238,7 +251,7 @@ PDF簽收單已附加於本信件中。
 
         res.json({
             code: "OK",
-            message: "簽收完成，PDF已上傳至Google Drive並寄送至您的信箱",
+            message: "簽收完成，PDF已上傳並寄送至您的信箱",
             data: {
                 fileId: fileId,
                 url: fileUrl
