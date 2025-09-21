@@ -6,7 +6,7 @@ module.exports = function handler(req, res) {
     }
     
     const redirectUri = 'https://online-signature-system.vercel.app/api/auth/callback';
-    const scopes = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets';
+    const scopes = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/gmail.send';
     
     const url = 'https://accounts.google.com/o/oauth2/v2/auth?' +
         'client_id=' + encodeURIComponent(clientId) + '&' +

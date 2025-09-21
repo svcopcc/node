@@ -174,6 +174,55 @@ module.exports = async function handler(req, res) {
 
         const fileId = driveResponse.data.id;
         const fileUrl = `https://drive.google.com/file/d/${fileId}/view`;
+        
+        // 寄送PDF至簽收者信箱
+        try {
+            const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+            
+            const emailSubject = `線上簽收單 - ${sign_item}`;
+            const emailBody = `
+您好 ${name}，
+
+您的線上簽收已完成，詳細資訊如下：
+
+簽收項目：${sign_item}
+學號：${student_id}
+簽收時間：${timestamp.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
+
+PDF簽收單已附加於本信件中。
+
+謝謝您的使用！
+
+---
+線上簽收系統
+            `;
+            
+            const emailMessage = [
+                'Content-Type: text/plain; charset="UTF-8"',
+                'MIME-Version: 1.0',
+                `To: ${userEmail}`,
+                `Subject: ${emailSubject}`,
+                '',
+                emailBody
+            ].join('\n');
+            
+            const encodedMessage = Buffer.from(emailMessage)
+                .toString('base64')
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/, '');
+            
+            await gmail.users.messages.send({
+                userId: 'me',
+                requestBody: {
+                    raw: encodedMessage
+                }
+            });
+            
+        } catch (emailError) {
+            console.error('寄送信件錯誤:', emailError);
+            // 信件寄送失敗不影響主流程
+        }
 
         // 記錄到 Google Sheets
         const dateStr = timestamp.toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' });
@@ -189,7 +238,7 @@ module.exports = async function handler(req, res) {
 
         res.json({
             code: "OK",
-            message: "簽收完成，PDF已上傳至Google Drive",
+            message: "簽收完成，PDF已上傳至Google Drive並寄送至您的信箱",
             data: {
                 fileId: fileId,
                 url: fileUrl
