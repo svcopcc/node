@@ -458,7 +458,20 @@ const App = () => {
                      <pre>{JSON.stringify(responseLog, null, 2)}</pre>
                  </div>
             )}
-            <div id="footer-container"></div>
+            {/* Footer區塊 */}
+            <footer style={{
+                backgroundColor: '#f8f9fa',
+                padding: '20px',
+                textAlign: 'center',
+                borderTop: '1px solid #dee2e6',
+                marginTop: '50px'
+            }}>
+                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                    <p style={{ margin: '5px 0', color: '#6c757d' }}>© 2024 線上簽收系統 - 所有權利保留</p>
+                    <p style={{ margin: '5px 0', color: '#6c757d' }}>如有問題請聯繫系統管理員</p>
+                    <p style={{ margin: '5px 0', color: '#6c757d', fontSize: '12px' }}>系統版本 v1.0 | 最後更新：2024年</p>
+                </div>
+            </footer>
             
             {/* 滿版簽名框 */}
             {showFullscreenSignature && (
@@ -496,16 +509,7 @@ const App = () => {
     );
 };
 
-// 加載footer
-fetch('https://fexiu.tw/footer.html')
-    .then(response => response.text())
-    .then(html => {
-        const footerContainer = document.getElementById('footer-container');
-        if (footerContainer) {
-            footerContainer.innerHTML = html;
-        }
-    })
-    .catch(error => console.log('Footer加載失敗:', error));
+// Footer已直接嵌入React組件，不需要動態加載
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(<App />);
