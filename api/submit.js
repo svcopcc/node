@@ -74,14 +74,11 @@ module.exports = async function handler(req, res) {
         const timestamp = new Date();
         const fileName = `${student_id}_${name}_${timestamp.getTime()}.pdf`;
         
-        // 設定 Chromium 執行路徑
-        await chromium.font('https://raw.githack.com/googlei18n/noto-cjk/master/NotoSansCJK-Regular.ttc');
-        
         const browser = await puppeteer.launch({
-            args: chromium.args,
+            args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
-            headless: chromium.headless,
+            executablePath: await chromium.executablePath(),
+            headless: 'new',
             ignoreHTTPSErrors: true,
         });
 

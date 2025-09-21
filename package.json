@@ -14,8 +14,9 @@
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "googleapis": "^160.0.0",
-    "puppeteer-core": "^19.7.2",
-    "@sparticuz/chromium": "^121.0.0",
+    "puppeteer-core": "^22.0.0",
+    "@sparticuz/chromium": "^123.0.0",
+    "jspdf": "^2.5.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
