@@ -68,12 +68,22 @@ const App = () => {
     }, []);
     
     const clearCanvas = () => {
-        if (!canvasRef.current) return;
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // 清除小的canvas
+        if (canvasRef.current) {
+            const ctx = canvasRef.current.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+            }
         }
+        
+        // 清除滿版canvas
+        if (fullscreenCanvasRef.current) {
+            const ctx = fullscreenCanvasRef.current.getContext('2d');
+            if (ctx) {
+                ctx.clearRect(0, 0, fullscreenCanvasRef.current.width, fullscreenCanvasRef.current.height);
+            }
+        }
+        
         setSignatureDataUrl('');
         setIsSignatureConfirmed(false);
     };
@@ -201,12 +211,14 @@ const App = () => {
 
     // --- UI Handlers ---
     const handleConfirmSignature = () => {
-        if (!canvasRef.current) return;
-        const dataUrl = canvasRef.current.toDataURL('image/png');
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
+        // 優先使用滿版canvas，如果沒有則使用小的canvas
+        const activeCanvas = showFullscreenSignature ? fullscreenCanvasRef.current : canvasRef.current;
+        if (!activeCanvas) return;
+        
+        const dataUrl = activeCanvas.toDataURL('image/png');
+        const ctx = activeCanvas.getContext('2d');
         if(ctx) {
-            const pixelBuffer = new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
+            const pixelBuffer = new Uint32Array(ctx.getImageData(0, 0, activeCanvas.width, activeCanvas.height).data.buffer);
             if (!pixelBuffer.some(color => color !== 0)) {
                 alert('簽名為空，請先簽名。');
                 return;
