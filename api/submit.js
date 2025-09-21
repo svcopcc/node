@@ -1,5 +1,6 @@
 const { google } = require('googleapis');
 const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 
 module.exports = async function handler(req, res) {
     // 設定CORS
@@ -69,21 +70,22 @@ module.exports = async function handler(req, res) {
             });
         }
 
-        // 生成PDF (使用@sparticuz/chromium for Vercel)
-        const chromium = require('@sparticuz/chromium');
+        // 生成PDF
+        const timestamp = new Date();
+        const fileName = `${student_id}_${name}_${timestamp.getTime()}.pdf`;
+        
+        // 設定 Chromium 執行路徑
+        await chromium.font('https://raw.githack.com/googlei18n/noto-cjk/master/NotoSansCJK-Regular.ttc');
         
         const browser = await puppeteer.launch({
-            args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
+            args: chromium.args,
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: true,
+            executablePath: await chromium.executablePath,
+            headless: chromium.headless,
             ignoreHTTPSErrors: true,
         });
 
         const page = await browser.newPage();
-        
-        const timestamp = new Date();
-        const fileName = `${student_id}_${name}_${timestamp.getTime()}.pdf`;
         
         const htmlContent = `
         <!DOCTYPE html>
@@ -118,10 +120,11 @@ module.exports = async function handler(req, res) {
         </html>
         `;
         
-        await page.setContent(htmlContent);
+        await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
         const pdfBuffer = await page.pdf({ 
             format: 'A4',
-            margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' }
+            margin: { top: '20mm', right: '20mm', bottom: '20mm', left: '20mm' },
+            printBackground: true
         });
         
         await browser.close();
