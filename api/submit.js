@@ -115,6 +115,9 @@ module.exports = async function handler(req, res) {
         doc.text('簽名:', 50, yPos);
         yPos += 30;
         
+        doc.text('我已確認已簽收本次簽收項目', 50, yPos);
+        yPos += 30;
+        
         // 加入簽名圖片
         if (signature_data_url) {
             try {

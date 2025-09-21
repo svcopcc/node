@@ -430,7 +430,7 @@ const App = () => {
                                 required
                                 aria-required="true"
                             />
-                            我已閱讀並同意個資告知事項
+                            我已確認已簽收本次簽收項目
                         </label>
                     </div>
                     
