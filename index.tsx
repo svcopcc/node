@@ -17,6 +17,7 @@ const App = () => {
     const [validationError, setValidationError] = useState('');
     const [studentIdError, setStudentIdError] = useState('');
     const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [showFullscreenSignature, setShowFullscreenSignature] = useState(false);
 
     // Canvas refs and state
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -358,7 +359,12 @@ const App = () => {
                     <div className="card">
                         <label htmlFor="signature-pad">簽名</label>
                         <div className={isSignatureConfirmed ? 'hidden' : ''}>
-                            <canvas id="signature-pad" ref={canvasRef} aria-label="簽名區域"></canvas>
+                            <canvas 
+                                id="signature-pad" 
+                                ref={canvasRef} 
+                                aria-label="簽名區域"
+                                onClick={() => setShowFullscreenSignature(true)}
+                            ></canvas>
                             <div className="button-group">
                                 <button type="button" className="secondary" onClick={clearCanvas}>清除</button>
                                 <button type="button" className="primary" onClick={handleConfirmSignature}>確認簽名</button>
@@ -408,6 +414,38 @@ const App = () => {
                  </div>
             )}
             <div id="footer-container"></div>
+            
+            {/* 滿版簽名框 */}
+            {showFullscreenSignature && (
+                <div className="fullscreen-signature-overlay">
+                    <div className="fullscreen-signature-container">
+                        <div className="fullscreen-signature-header">
+                            <h3>簽名區域</h3>
+                            <button 
+                                type="button" 
+                                className="close-button"
+                                onClick={() => setShowFullscreenSignature(false)}
+                            >×</button>
+                        </div>
+                        <canvas 
+                            id="fullscreen-signature-pad" 
+                            className="fullscreen-canvas"
+                            aria-label="滿版簽名區域"
+                        ></canvas>
+                        <div className="fullscreen-button-group">
+                            <button type="button" className="secondary" onClick={clearCanvas}>清除</button>
+                            <button 
+                                type="button" 
+                                className="primary" 
+                                onClick={() => {
+                                    handleConfirmSignature();
+                                    setShowFullscreenSignature(false);
+                                }}
+                            >確認簽名</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 };

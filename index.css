@@ -203,3 +203,78 @@ button.secondary:hover {
 .hidden {
     display: none;
 }
+
+/* 滿版簽名框樣式 */
+.fullscreen-signature-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.fullscreen-signature-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    width: 90vw;
+    height: 80vh;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+}
+
+.fullscreen-signature-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+}
+
+.fullscreen-signature-header h3 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    padding: 5px 10px;
+}
+
+.close-button:hover {
+    color: #333;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.fullscreen-canvas {
+    flex: 1;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    cursor: crosshair;
+    background-color: #fafafa;
+    touch-action: none;
+}
+
+.fullscreen-button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.fullscreen-button-group button {
+    padding: 12px 24px;
+    font-size: 16px;
+}
