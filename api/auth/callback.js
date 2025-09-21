@@ -1,7 +1,7 @@
-import https from 'https';
-import querystring from 'querystring';
+const https = require('https');
+const querystring = require('querystring');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     const { code } = req.query;
     
     if (!code) {

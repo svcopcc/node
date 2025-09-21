@@ -1,4 +1,4 @@
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     
     if (!clientId) {
