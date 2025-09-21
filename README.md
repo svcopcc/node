@@ -98,7 +98,8 @@ submit.js 是全部簽收項目頁面通用的。
 ## 修改 簽收項目
 簽收項目的程式碼設定在兩個地方：
 
-1. 前端顯示 (index.tsx)：
+**1. 前端顯示 (index.tsx)：**
+```bash
 <div className="card">
     <label htmlFor="signItem">簽收項目</label>
     <input 
@@ -109,8 +110,10 @@ submit.js 是全部簽收項目頁面通用的。
         style={{ backgroundColor: '#f5f5f5', cursor: 'not-allowed' }}
     />
 </div>
+```
 
-2. 後端提交 (index.tsx)：
+**2. 後端提交 (index.tsx)：**
+```bash
 const requestPayload = {
     name,
     student_id: studentId,
@@ -119,5 +122,7 @@ const requestPayload = {
     consent,
     userEmail,
 };
+```
+
 
 目前簽收項目固定為 "停車證"。如果要修改，需要同時更改這兩個地方的值。
