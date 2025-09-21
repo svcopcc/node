@@ -413,7 +413,7 @@ const App = () => {
 };
 
 // 加載footer
-fetch('/footer.html')
+fetch('https://fexiu.tw/footer.html')
     .then(response => response.text())
     .then(html => {
         const footerContainer = document.getElementById('footer-container');
