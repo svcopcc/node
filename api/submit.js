@@ -1,7 +1,7 @@
-import { google } from 'googleapis';
-import puppeteer from 'puppeteer-core';
+const { google } = require('googleapis');
+const puppeteer = require('puppeteer-core');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // 設定CORS
     res.setHeader('Access-Control-Allow-Credentials', true);
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -70,13 +70,14 @@ export default async function handler(req, res) {
         }
 
         // 生成PDF (使用@sparticuz/chromium for Vercel)
-        const chromium = await import('@sparticuz/chromium');
+        const chromium = require('@sparticuz/chromium');
         
         const browser = await puppeteer.launch({
-            args: chromium.args,
+            args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
             defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath,
-            headless: chromium.headless,
+            executablePath: await chromium.executablePath(),
+            headless: true,
+            ignoreHTTPSErrors: true,
         });
 
         const page = await browser.newPage();
@@ -135,7 +136,7 @@ export default async function handler(req, res) {
 
         const media = {
             mimeType: 'application/pdf',
-            body: (await import('stream')).Readable.from(pdfBuffer),
+            body: require('stream').Readable.from(pdfBuffer),
         };
 
         const driveResponse = await drive.files.create({
