@@ -14,6 +14,7 @@ const App = () => {
     const [isSignatureConfirmed, setIsSignatureConfirmed] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [responseLog, setResponseLog] = useState<object | null>(null);
+    const [statusMessage, setStatusMessage] = useState<string>('');
     const [validationError, setValidationError] = useState('');
     const [studentIdError, setStudentIdError] = useState('');
     const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -303,29 +304,26 @@ const App = () => {
 
             switch (jsonResponse.code) {
                 case 'OK':
-                    alert(`成功: ${jsonResponse.message}\n檔案連結: ${jsonResponse.data.url}`);
+                    setStatusMessage(`✅ 成功: ${jsonResponse.message}`);
                     break;
                 case 'DUPLICATE':
-                    alert(`提醒: ${jsonResponse.message}`);
-                    if (window.confirm('您今日已簽收過，要開啟已存在的簽收單嗎？')) {
-                        window.open(jsonResponse.data.existing.url, '_blank');
-                    }
+                    setStatusMessage(`⚠️ 提醒: ${jsonResponse.message}`);
                     break;
                 case 'VALIDATION_ERROR':
                 case 'AUTH_REQUIRED':
                 case 'TOOL_ERROR':
                 case 'TOO_MANY_REQUESTS':
-                     alert(`錯誤: ${jsonResponse.message}`);
+                    setStatusMessage(`❌ 錯誤: ${jsonResponse.message}`);
                     break;
                 default:
-                     alert(`收到未知的回應: ${jsonResponse.message}`);
+                    setStatusMessage(`❓ 未知回應: ${jsonResponse.message}`);
             }
 
         } catch (error) {
             console.error("API Error:", error);
             const errorMessage = "與後端 API 連線時發生錯誤。";
             setResponseLog({ error: errorMessage, details: String(error) });
-            alert(errorMessage);
+            setStatusMessage(`❌ 連線錯誤: ${errorMessage}`);
         } finally {
             setIsLoading(false);
         }
@@ -444,10 +442,18 @@ const App = () => {
                 </fieldset>
             </form>
             
+            {/* 狀態訊息區塊 */}
+            {statusMessage && (
+                <div className="status-message">
+                    {statusMessage}
+                </div>
+            )}
+            
             {isLoading && <div className="spinner" aria-label="載入中"></div>}
 
+            {/* API回應隱藏但保留供除錯 */}
             {responseLog && (
-                 <div className="log" aria-live="polite">
+                 <div className="log hidden" aria-live="polite">
                      <p className="log-title">API 回應:</p>
                      <pre>{JSON.stringify(responseLog, null, 2)}</pre>
                  </div>
