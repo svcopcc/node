@@ -52,22 +52,24 @@ module.exports = async function handler(req, res) {
 
         oauth2Client.setCredentials(tokens);
 
-        // 檢查重複
+        // 檢查重複（日期+項目+學號）
         const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
         const existingData = await sheets.spreadsheets.values.get({
             spreadsheetId: process.env.GOOGLE_SHEET_ID,
-            range: 'A:D',
+            range: 'A:E',
         });
 
         const today = new Date().toDateString();
         const duplicate = existingData.data.values?.find(row => 
-            row[3] === student_id && new Date(row[0]).toDateString() === today
+            row[3] === student_id && 
+            new Date(row[0]).toDateString() === today &&
+            row[4] === sign_item
         );
 
         if (duplicate) {
             return res.json({
                 code: "DUPLICATE",
-                message: "此學號今日已簽收"
+                message: `此學號今日已簽收「${sign_item}」`
             });
         }
 
@@ -113,28 +115,48 @@ module.exports = async function handler(req, res) {
         doc.text('簽名:', 50, yPos);
         yPos += 30;
         
-        // 簽名欄位外框
-        const signatureBoxX = 50;
-        const signatureBoxY = yPos;
-        const signatureBoxWidth = 250;
-        const signatureBoxHeight = 100;
-        
-        doc.rect(signatureBoxX, signatureBoxY, signatureBoxWidth, signatureBoxHeight)
-           .stroke();
-        
-        // 加入簽名圖片
+        // 加入簽名圖片並根據實際大小設定外框
         if (signature_data_url) {
             try {
                 const base64Data = signature_data_url.replace(/^data:image\/\w+;base64,/, '');
                 const imgBuffer = Buffer.from(base64Data, 'base64');
-                doc.image(imgBuffer, signatureBoxX + 10, signatureBoxY + 10, { 
-                    width: signatureBoxWidth - 20,
-                    height: signatureBoxHeight - 20,
-                    fit: [signatureBoxWidth - 20, signatureBoxHeight - 20]
+                
+                // 設定簽名區域最大尺寸
+                const maxWidth = 400;
+                const maxHeight = 150;
+                
+                // 放置簽名圖片
+                doc.image(imgBuffer, 50, yPos, { 
+                    fit: [maxWidth, maxHeight],
+                    align: 'left',
+                    valign: 'top'
                 });
+                
+                // 獲取實際圖片尺寸來設定外框
+                const imgInfo = doc._getImage(imgBuffer);
+                const aspectRatio = imgInfo.width / imgInfo.height;
+                let actualWidth, actualHeight;
+                
+                if (aspectRatio > maxWidth / maxHeight) {
+                    actualWidth = maxWidth;
+                    actualHeight = maxWidth / aspectRatio;
+                } else {
+                    actualHeight = maxHeight;
+                    actualWidth = maxHeight * aspectRatio;
+                }
+                
+                // 簽名欄位外框（根據實際尺寸）
+                doc.rect(50, yPos, actualWidth, actualHeight)
+                   .stroke();
+                   
             } catch (imgError) {
-                doc.text('簽名圖片無法加載', signatureBoxX + 10, signatureBoxY + 40);
+                // 如果圖片加載失敗，顯示預設外框
+                doc.rect(50, yPos, 300, 80).stroke();
+                doc.text('簽名圖片無法加載', 60, yPos + 30);
             }
+        } else {
+            // 沒有簽名時的預設外框
+            doc.rect(50, yPos, 300, 80).stroke();
         }
         
         doc.end();
