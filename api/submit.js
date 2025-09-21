@@ -52,19 +52,21 @@ module.exports = async function handler(req, res) {
 
         oauth2Client.setCredentials(tokens);
 
-        // 檢查重複（日期+項目+學號）
+        // 檢查重複（日期+學號+簽收項目）
         const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
         const existingData = await sheets.spreadsheets.values.get({
             spreadsheetId: process.env.GOOGLE_SHEET_ID,
-            range: 'A:E',
+            range: 'A:H',
         });
 
-        const today = new Date().toDateString();
-        const duplicate = existingData.data.values?.find(row => 
-            row[3] === student_id && 
-            new Date(row[0]).toDateString() === today &&
-            row[4] === sign_item
-        );
+        const today = new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' });
+        
+        const duplicate = existingData.data.values?.find(row => {
+            return row && row.length >= 5 && 
+                   row[0] === today && 
+                   row[3] === student_id && 
+                   row[4] === sign_item;
+        });
 
         if (duplicate) {
             return res.json({
