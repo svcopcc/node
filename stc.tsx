@@ -454,9 +454,9 @@ const StudentCardApp = () => {
                 marginTop: '50px'
             }}>
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                    <p style={{ margin: '5px 0', color: '#6c757d' }}>© 2024 線上簽收系統 - 所有權利保留</p>
+                    <p style={{ margin: '5px 0', color: '#6c757d' }}>Copyright © 2025 YTC. VELVET . All rights reserved.</p>
                     <p style={{ margin: '5px 0', color: '#6c757d' }}>如有問題請聯繫系統管理員</p>
-                    <p style={{ margin: '5px 0', color: '#6c757d', fontSize: '12px' }}>系統版本 v1.0 | 最後更新：2024年</p>
+                    <p style={{ margin: '5px 0', color: '#6c757d', fontSize: '12px' }}>線上簽收系統 | 系統版本 v1.0 | 最新更新：2025/9/22</p>
                 </div>
             </footer>
             
