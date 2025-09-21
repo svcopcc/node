@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
         rollupOptions: {
           input: {
             main: path.resolve(__dirname, 'index.html'),
-            'student-card': path.resolve(__dirname, 'student-card.html')
+            stc: path.resolve(__dirname, 'stc.html')
           }
         }
       },
