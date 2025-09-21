@@ -21,15 +21,17 @@ const App = () => {
 
     // Canvas refs and state
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const fullscreenCanvasRef = useRef<HTMLCanvasElement>(null);
     const isDrawing = useRef(false);
     const lastPos = useRef<{ x: number, y: number } | null>(null);
 
     // --- 不再需要 AI 設定 ---
     
     // --- Canvas Logic ---
-    const getPos = (e: MouseEvent | TouchEvent): { x: number, y: number } | null => {
-        if (!canvasRef.current) return null;
-        const rect = canvasRef.current.getBoundingClientRect();
+    const getPos = (e: MouseEvent | TouchEvent, canvas?: HTMLCanvasElement): { x: number, y: number } | null => {
+        const targetCanvas = canvas || canvasRef.current;
+        if (!targetCanvas) return null;
+        const rect = targetCanvas.getBoundingClientRect();
         const touch = 'touches' in e ? e.touches[0] : e;
         return {
             x: touch.clientX - rect.left,
@@ -37,19 +39,19 @@ const App = () => {
         };
     };
 
-    const startDrawing = useCallback((e: MouseEvent | TouchEvent) => {
+    const startDrawing = useCallback((e: MouseEvent | TouchEvent, canvas?: HTMLCanvasElement) => {
         isDrawing.current = true;
-        lastPos.current = getPos(e);
+        lastPos.current = getPos(e, canvas);
     }, []);
 
-    const draw = useCallback((e: MouseEvent | TouchEvent) => {
-        if (!isDrawing.current || !canvasRef.current || !lastPos.current) return;
+    const draw = useCallback((e: MouseEvent | TouchEvent, canvas?: HTMLCanvasElement) => {
+        const targetCanvas = canvas || canvasRef.current;
+        if (!isDrawing.current || !targetCanvas || !lastPos.current) return;
         
         e.preventDefault(); // Prevent scrolling on touch devices
         
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        const currentPos = getPos(e);
+        const ctx = targetCanvas.getContext('2d');
+        const currentPos = getPos(e, targetCanvas);
 
         if (ctx && currentPos) {
             ctx.beginPath();
@@ -100,6 +102,31 @@ const App = () => {
         canvas.addEventListener('touchmove', draw, { passive: false });
         window.addEventListener('touchend', stopDrawing);
 
+        // 設定滿版canvas事件
+        const fullscreenCanvas = fullscreenCanvasRef.current;
+        if (fullscreenCanvas && showFullscreenSignature) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = fullscreenCanvas.getBoundingClientRect();
+            fullscreenCanvas.width = rect.width * dpr;
+            fullscreenCanvas.height = rect.height * dpr;
+            
+            const ctx = fullscreenCanvas.getContext('2d');
+            if (ctx) {
+                ctx.scale(dpr, dpr);
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#333';
+            }
+
+            const fullscreenStartDrawing = (e: MouseEvent | TouchEvent) => startDrawing(e, fullscreenCanvas);
+            const fullscreenDraw = (e: MouseEvent | TouchEvent) => draw(e, fullscreenCanvas);
+
+            fullscreenCanvas.addEventListener('mousedown', fullscreenStartDrawing);
+            fullscreenCanvas.addEventListener('mousemove', fullscreenDraw);
+            fullscreenCanvas.addEventListener('touchstart', fullscreenStartDrawing, { passive: false });
+            fullscreenCanvas.addEventListener('touchmove', fullscreenDraw, { passive: false });
+        }
+
         return () => {
             canvas.removeEventListener('mousedown', startDrawing);
             canvas.removeEventListener('mousemove', draw);
@@ -108,7 +135,7 @@ const App = () => {
             canvas.removeEventListener('touchmove', draw);
             window.removeEventListener('touchend', stopDrawing);
         };
-    }, [startDrawing, draw, stopDrawing]);
+    }, [startDrawing, draw, stopDrawing, showFullscreenSignature]);
     
     // --- Google Sign-In Logic ---
     const decodeJwt = (token: string) => {
@@ -429,6 +456,7 @@ const App = () => {
                         </div>
                         <canvas 
                             id="fullscreen-signature-pad" 
+                            ref={fullscreenCanvasRef}
                             className="fullscreen-canvas"
                             aria-label="滿版簽名區域"
                         ></canvas>
