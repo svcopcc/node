@@ -1,5 +1,5 @@
-const { google } = require('googleapis');
-const puppeteer = require('puppeteer-core');
+import { google } from 'googleapis';
+import puppeteer from 'puppeteer-core';
 
 export default async function handler(req, res) {
     // 設定CORS
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
         }
 
         // 生成PDF (使用@sparticuz/chromium for Vercel)
-        const chromium = require('@sparticuz/chromium');
+        const chromium = await import('@sparticuz/chromium');
         
         const browser = await puppeteer.launch({
             args: chromium.args,
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
 
         const media = {
             mimeType: 'application/pdf',
-            body: require('stream').Readable.from(pdfBuffer),
+            body: (await import('stream')).Readable.from(pdfBuffer),
         };
 
         const driveResponse = await drive.files.create({
