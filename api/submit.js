@@ -207,7 +207,7 @@ module.exports = async function handler(req, res) {
                 <p><strong style="color: red;">簽收項目：${sign_item}</strong></p>
                 <p>學號：${student_id}</p>
                 <p>簽收時間：${timestamp.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}</p>
-                <p>PDF SHA-256 雜湊值：${pdfHash}</p>
+                <p>PDF SHA-256(hex) 雜湊值：${pdfHash}</p>
                 <p>PDF簽收單已附加於本信件中。</p>
                 <p>謝謝您的使用！</p>
                 <hr>
