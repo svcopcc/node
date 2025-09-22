@@ -2,6 +2,7 @@ const { google } = require('googleapis');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 module.exports = async function handler(req, res) {
     // 設定CORS
@@ -165,6 +166,10 @@ module.exports = async function handler(req, res) {
                 resolve(Buffer.concat(chunks));
             });
         });
+        
+        // 計算PDF雜湊值
+        const pdfHash = crypto.createHash('sha256').update(pdfBuffer).digest('hex');
+        console.log('PDF SHA-256 Hash:', pdfHash);
 
         // 上傳PDF到Google Drive
         const drive = google.drive({ version: 'v3', auth: oauth2Client });
@@ -201,6 +206,7 @@ module.exports = async function handler(req, res) {
 簽收項目：${sign_item}
 學號：${student_id}
 簽收時間：${timestamp.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
+PDF雜湊值：${pdfHash}
 
 PDF簽收單已附加於本信件中。
 
@@ -254,10 +260,10 @@ PDF簽收單已附加於本信件中。
         const timeStr = timestamp.toLocaleTimeString('zh-TW', { timeZone: 'Asia/Taipei' });
         await sheets.spreadsheets.values.append({
             spreadsheetId: process.env.GOOGLE_SHEET_ID,
-            range: 'A:H',
+            range: 'A:I',
             valueInputOption: 'RAW',
             resource: {
-                values: [[dateStr, timeStr, name, student_id, sign_item, userEmail, fileName, fileUrl]]
+                values: [[dateStr, timeStr, name, student_id, sign_item, userEmail, fileName, fileUrl, pdfHash]]
             },
         });
 
@@ -266,7 +272,8 @@ PDF簽收單已附加於本信件中。
             message: "簽收完成，PDF已上傳並寄送至您的信箱",
             data: {
                 fileId: fileId,
-                url: fileUrl
+                url: fileUrl,
+                hash: pdfHash
             }
         });
 
