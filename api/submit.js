@@ -199,21 +199,23 @@ module.exports = async function handler(req, res) {
             const boundary = '----boundary_' + Date.now();
             const emailSubject = `=?UTF-8?B?${Buffer.from(`線上簽收單 - ${sign_item}`).toString('base64')}?=`;
             
-            const emailBody = `您好 ${name}，
-
-您的線上簽收已完成，詳細資訊如下：
-
-簽收項目：${sign_item}
-學號：${student_id}
-簽收時間：${timestamp.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}
-PDF雜湊值：${pdfHash}
-
-PDF簽收單已附加於本信件中。
-
-謝謝您的使用！
-
----
-線上簽收系統`;
+            const emailBody = `
+            <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <p>您好 ${name}，</p>
+                <p>您的線上簽收已完成，詳細資訊如下：</p>
+                <p><strong style="color: red;">簽收項目：${sign_item}</strong></p>
+                <p>學號：${student_id}</p>
+                <p>簽收時間：${timestamp.toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}</p>
+                <p>PDF SHA-256 雜湊值：${pdfHash}</p>
+                <p>PDF簽收單已附加於本信件中。</p>
+                <p>謝謝您的使用！</p>
+                <hr>
+                <p>線上簽收系統</p>
+		<p>YTC.</p>
+            </body>
+            </html>
+            `;
             
             const emailMessage = [
                 `To: ${userEmail}`,
@@ -222,7 +224,7 @@ PDF簽收單已附加於本信件中。
                 `Content-Type: multipart/mixed; boundary="${boundary}"`,
                 '',
                 `--${boundary}`,
-                'Content-Type: text/plain; charset=UTF-8',
+                'Content-Type: text/html; charset=UTF-8',
                 'Content-Transfer-Encoding: base64',
                 '',
                 Buffer.from(emailBody).toString('base64'),
